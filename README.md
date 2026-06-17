@@ -22,6 +22,7 @@ The point of this repository is not to demonstrate broad agent autonomy. It is t
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [Policy](docs/POLICY.md)
+- [Roadmap](docs/ROADMAP.md)
 - [Runbook](docs/RUNBOOK.md)
 - [Report contracts](docs/REPORT-CONTRACTS.md)
 - [Getting started](docs/quickstart.md)
