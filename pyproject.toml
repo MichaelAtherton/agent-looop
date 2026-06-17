@@ -1,0 +1,14 @@
+[project]
+name = "agent-looop"
+version = "0.1.0"
+description = "Sandbox fixture for a Hermes GitHub Issues to draft PR loop."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

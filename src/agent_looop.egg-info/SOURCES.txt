@@ -1,0 +1,10 @@
+README.md
+pyproject.toml
+src/agent_looop/__init__.py
+src/agent_looop/parser.py
+src/agent_looop.egg-info/PKG-INFO
+src/agent_looop.egg-info/SOURCES.txt
+src/agent_looop.egg-info/dependency_links.txt
+src/agent_looop.egg-info/requires.txt
+src/agent_looop.egg-info/top_level.txt
+tests/test_parser.py

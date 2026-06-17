@@ -1,0 +1,71 @@
+loop:
+  control_plane: github_issues
+  runner: hermes
+  max_issues_per_worker_run: 1
+  draft_pr_only: true
+
+repo:
+  base_branch: main
+  branch_prefix: agent/issue-
+  run_reports: github_issue_comments
+
+labels:
+  risk:
+    low: risk:low
+    medium: risk:medium
+    high: risk:high
+  type:
+    bug: type:bug
+    feature: type:feature
+    docs: type:docs
+    test: type:test
+    refactor: type:refactor
+    chore: type:chore
+  agent:
+    ready: agent:ready
+    blocked: agent:blocked
+    complete: agent:complete
+    in_progress: agent:in-progress
+  human:
+    needs_human: needs:human
+
+policy:
+  eligible_required_labels:
+    - risk:low
+    - agent:ready
+  skip_if_any_label:
+    - needs:human
+    - agent:blocked
+    - risk:medium
+    - risk:high
+  allowed_types_for_first_worker:
+    - type:docs
+    - type:test
+  blocked_patterns:
+    - auth
+    - billing
+    - permissions
+    - security
+    - deploy
+    - migration
+    - architecture
+    - AIR scoring
+    - AIR assessment
+    - AIR coaching
+    - privacy
+    - employer visibility
+    - role-data
+
+review:
+  separate_reviewer_required: true
+  human_reviewers:
+    - Michael Atherton
+    - Calvin
+
+verification:
+  default_commands:
+    - python -m pytest
+  docs_link_check: manual until link checker is added
+
+retry:
+  same_failure_class_limit: 1
