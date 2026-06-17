@@ -8,6 +8,16 @@ Create managed labels and smoke-test issues. Do not apply triage labels to smoke
 
 Goal: inspect GitHub Issues and produce a non-mutating report.
 
+Run:
+
+```bash
+python scripts/manager_dry_run.py \
+  --repo MichaelAtherton/agent-looop \
+  --output reports/manager-dry-run-$(date -u +%Y-%m-%d).md
+```
+
+This command reads GitHub issues/labels via `gh`, writes a local Markdown report, and performs no GitHub mutations.
+
 Dry-run report must include:
 
 - repo and run time,
