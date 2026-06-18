@@ -319,7 +319,7 @@ def _write_worker_report(
 
 
 def _changed_files(root: Path) -> list[str]:
-    completed = _run(["git", "status", "--short"], cwd=root)
+    completed = _run(["git", "status", "--short", "--untracked-files=all"], cwd=root)
     files: list[str] = []
     for line in completed.stdout.splitlines():
         if not line.strip():

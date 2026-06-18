@@ -3,6 +3,7 @@ from pathlib import Path
 from agent_looop.manager_dry_run import Issue
 from agent_looop.worker_prototype import (
     TaskPacket,
+    _changed_files,
     build_task_packet,
     select_oldest_eligible_issue,
     write_worker_plan,
@@ -74,3 +75,22 @@ def test_write_worker_plan_persists_plan_before_editing(tmp_path: Path):
     assert "Files expected to touch:" in text
     assert "README.md" in text
     assert "Stop conditions:" in text
+
+
+def test_changed_files_reports_untracked_files_inside_directories(tmp_path: Path):
+    import subprocess
+
+    subprocess.run(["git", "init"], cwd=tmp_path, check=True, capture_output=True)
+    (tmp_path / "tracked.txt").write_text("before\n")
+    subprocess.run(["git", "add", "tracked.txt"], cwd=tmp_path, check=True, capture_output=True)
+    subprocess.run(
+        ["git", "-c", "user.email=test@example.com", "-c", "user.name=Test", "commit", "-m", "init"],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    )
+    (tmp_path / "tracked.txt").write_text("after\n")
+    (tmp_path / "reports" / "worker-plans").mkdir(parents=True)
+    (tmp_path / "reports" / "worker-plans" / "issue-1-plan.md").write_text("plan\n")
+
+    assert _changed_files(tmp_path) == ["tracked.txt", "reports/worker-plans/issue-1-plan.md"]
