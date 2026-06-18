@@ -89,10 +89,15 @@ Optional flags:
 
 Default behavior:
 
+- validates all gates before any GitHub mutation,
+- pushes the worker branch if needed,
 - creates a draft PR,
-- posts/updates an issue run report comment with PR link,
-- writes a local PR creation report in the worktree,
+- writes a PR creation report in the worktree,
+- commits/pushes that PR creation report back to the same worker branch,
+- posts or updates an issue run report comment with the PR link,
 - exits non-zero on any gate failure.
+
+Ordering matters: the PR URL does not exist until after `gh pr create --draft`, so the PR creation report is necessarily written after PR creation and then pushed as a follow-up commit to the same draft PR branch.
 
 ## Inputs
 
@@ -127,8 +132,10 @@ The script must stop before creating a PR unless all conditions are true.
 - Current branch is not `main`.
 - Branch name starts with expected worker prefix, e.g. `agent/issue-`.
 - Branch has been pushed or can be pushed to origin.
-- Worktree has no uncommitted changes, except optionally the PR creation report after PR creation.
+- Worktree has no uncommitted changes before PR creation.
 - Diff against base branch is non-empty.
+- Branch is up to date with the latest base branch, or the script explicitly reports that rebase/merge is required before PR creation.
+- After the PR creation report is written, only `reports/pr-runs/issue-<n>-draft-pr.md` may be newly changed before the report commit.
 
 ### Issue eligibility gates
 
@@ -285,7 +292,7 @@ Worker completed the bounded task and opened a draft PR after separate reviewer 
 Human gate: PR is draft-only. Human review/merge required.
 ```
 
-The script should eventually upsert this comment instead of creating duplicates. V1 may create a new comment if upsert is not yet implemented, but should use a stable heading so later upsert is easy.
+The script must upsert this comment rather than creating duplicates. It should find an existing comment on the issue whose body starts with the stable heading and update that comment. If no matching comment exists, it may create one.
 
 Stable heading:
 
@@ -300,6 +307,8 @@ Write a local report in the worker branch:
 ```text
 reports/pr-runs/issue-<n>-draft-pr.md
 ```
+
+The report is written after the draft PR exists, because it must include the PR URL. The script must then commit and push this report to the same worker branch so the audit artifact appears in the draft PR.
 
 Required fields:
 
@@ -334,6 +343,21 @@ Required fields:
 ## Human gate
 This PR is draft-only. Human review/merge required.
 ```
+
+## Execution sequence
+
+The script should execute in this order:
+
+1. Load GitHub issue state and local worktree state.
+2. Validate issue eligibility, artifacts, reviewer result, verification result, branch name, base freshness, and existing PR state.
+3. Render PR body and issue comment locally.
+4. If `--dry-run`, print/write the rendered artifacts and stop without GitHub mutation.
+5. Push the worker branch if needed.
+6. Create the PR using `gh pr create --draft`.
+7. Write `reports/pr-runs/issue-<n>-draft-pr.md` with the PR URL and all gate results.
+8. Commit and push the PR creation report to the worker branch.
+9. Upsert the issue run report comment with the PR URL.
+10. Stop. Do not merge, mark ready, close issue, or apply completion labels.
 
 ## Idempotency behavior
 
@@ -421,6 +445,9 @@ Add tests for:
 8. Ineligible issue labels block PR creation.
 9. Existing PR blocks duplicate creation.
 10. Issue comment rendering includes PR link, branch, reports, verification, and human gate.
+11. Issue comment upsert updates an existing `## Worker Run Report` comment instead of creating a duplicate.
+12. PR creation report is written only after a PR URL exists and is committed/pushed as a follow-up branch commit.
+13. Stale branch/base state blocks PR creation or emits an explicit rebase-required error.
 
 Integration/manual verification:
 
@@ -454,18 +481,16 @@ This automation is done when:
 - script refuses ineligible issues,
 - script opens draft PR only after reviewer `pass`,
 - PR body includes worker and reviewer evidence,
-- issue receives a run report / PR link comment,
-- PR creation report is written,
+- issue receives an upserted run report / PR link comment,
+- PR creation report is written after PR creation, committed, and pushed to the draft PR branch,
 - no merge/deploy/publish/repo-settings/secrets action occurs,
 - human merge gate remains intact.
 
 ## Open decisions
 
-1. Should the script upsert the issue comment in v1, or is creating a new comment acceptable for the pilot?
-   - Recommended: upsert if cheap; otherwise create with stable heading.
-2. Should the PR creation report be committed to the worker branch after PR creation?
-   - Recommended: yes, because it completes the audit trail.
-3. Should `agent:in-progress` be introduced before automating the second worker run?
+1. Should `agent:in-progress` be introduced before automating the second worker run?
    - Recommended: yes before repeated/scheduled worker runs, but not required for this one-off pilot.
-4. Should `agent:complete` be applied when the draft PR opens or only after merge?
+2. Should `agent:complete` be applied when the draft PR opens or only after merge?
    - Recommended: only after merge, or use a separate future `agent:pr-opened` label if needed.
+3. Should stale branch handling auto-rebase simple documentation branches, or always stop for human review?
+   - Recommended: stop with an explicit rebase-required message for v1; auto-rebase can come after the PR path is proven.
