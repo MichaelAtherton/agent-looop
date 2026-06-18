@@ -154,9 +154,9 @@ The script must:
 5. refuse existing open PRs from the same branch,
 6. render the PR body from worker/reviewer artifacts,
 7. create the PR with `--draft`,
-8. write `reports/pr-runs/issue-<n>-draft-pr.md` after the PR URL exists,
-9. commit and push that PR creation report to the same worker branch,
-10. upsert the issue comment headed `## Worker Run Report`,
+8. upsert the issue comment headed `## Worker Run Report`,
+9. write `reports/pr-runs/issue-<n>-draft-pr.md` after the PR and issue comment URLs exist,
+10. commit and push that PR creation report to the same worker branch,
 11. stop without merging, marking ready, closing issue, deploying, or changing repo settings.
 
 ## Hard safety rules
@@ -284,9 +284,9 @@ Only after tests pass:
 
 - push branch if needed,
 - create draft PR with `gh pr create --draft`,
-- write PR creation report after PR URL exists,
-- commit and push report,
-- upsert issue comment.
+- upsert issue comment,
+- write PR creation report after PR and issue comment URLs exist,
+- commit and push report.
 
 Use subprocess calls to `gh` and `git`, consistent with the rest of the repo.
 

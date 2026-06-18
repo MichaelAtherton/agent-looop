@@ -92,12 +92,12 @@ Default behavior:
 - validates all gates before any GitHub mutation,
 - pushes the worker branch if needed,
 - creates a draft PR,
+- posts or updates an issue run report comment with the PR link,
 - writes a PR creation report in the worktree,
 - commits/pushes that PR creation report back to the same worker branch,
-- posts or updates an issue run report comment with the PR link,
 - exits non-zero on any gate failure.
 
-Ordering matters: the PR URL does not exist until after `gh pr create --draft`, so the PR creation report is necessarily written after PR creation and then pushed as a follow-up commit to the same draft PR branch.
+Ordering matters: the PR URL does not exist until after `gh pr create --draft`, and the issue comment URL does not exist until after the comment is upserted. Therefore the script creates the draft PR, upserts the issue comment, writes the PR creation report with both URLs, then pushes that report as a follow-up commit to the same draft PR branch.
 
 ## Inputs
 
@@ -308,7 +308,7 @@ Write a local report in the worker branch:
 reports/pr-runs/issue-<n>-draft-pr.md
 ```
 
-The report is written after the draft PR exists, because it must include the PR URL. The script must then commit and push this report to the same worker branch so the audit artifact appears in the draft PR.
+The report is written after the draft PR exists and after the issue comment is upserted, because it must include both URLs. The script must then commit and push this report to the same worker branch so the audit artifact appears in the draft PR.
 
 Required fields:
 
@@ -354,9 +354,9 @@ The script should execute in this order:
 4. If `--dry-run`, print/write the rendered artifacts and stop without GitHub mutation.
 5. Push the worker branch if needed.
 6. Create the PR using `gh pr create --draft`.
-7. Write `reports/pr-runs/issue-<n>-draft-pr.md` with the PR URL and all gate results.
-8. Commit and push the PR creation report to the worker branch.
-9. Upsert the issue run report comment with the PR URL.
+7. Upsert the issue run report comment with the PR URL.
+8. Write `reports/pr-runs/issue-<n>-draft-pr.md` with the PR URL, issue comment URL, and all gate results.
+9. Commit and push the PR creation report to the worker branch.
 10. Stop. Do not merge, mark ready, close issue, or apply completion labels.
 
 ## Idempotency behavior
