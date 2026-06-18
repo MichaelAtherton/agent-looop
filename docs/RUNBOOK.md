@@ -67,6 +67,16 @@ Forbidden actions:
 
 ## Phase 3 — Worker prototype
 
+Run only after manager apply mode is approved.
+
+```bash
+python scripts/worker_prototype.py \
+  --repo MichaelAtherton/agent-looop \
+  --repo-root .
+```
+
+This creates a local branch/worktree, writes a plan before editing, implements one deterministic docs/test smoke task, runs verification, writes a worker report, and stops before reviewer/PR/merge.
+
 Select exactly one oldest eligible issue with:
 
 ```text
