@@ -24,6 +24,7 @@ The point of this repository is not to demonstrate broad agent autonomy. It is t
 - [Policy](docs/POLICY.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Draft PR creation spec](docs/DRAFT-PR-CREATION-SPEC.md)
+- [Draft PR automation handoff](docs/DRAFT-PR-AUTOMATION-HANDOFF.md)
 - [Runbook](docs/RUNBOOK.md)
 - [Report contracts](docs/REPORT-CONTRACTS.md)
 - [Getting started](docs/quickstart.md)
