@@ -94,9 +94,32 @@ Worker steps:
 6. Run relevant verification.
 7. Run separate reviewer pass.
 8. Fix valid in-scope reviewer findings once.
-9. Open draft PR.
-10. Comment run report on issue.
-11. Stop.
+9. Stop before reviewer/PR/merge.
+
+## Phase 4 — Reviewer/checker pass
+
+Run after the worker prototype completes:
+
+```bash
+python scripts/reviewer.py \
+  --repo MichaelAtherton/agent-looop \
+  --worktree /tmp/agent-looop-worktrees/issue-1 \
+  --issue 1
+```
+
+Reviewer recommendations:
+
+- `pass`: draft PR may be opened.
+- `revise`: worker may make one in-scope repair attempt, then reviewer runs again.
+- `human_escalation`: stop, no PR, ask the human question.
+
+Hard stop examples:
+
+- ineligible issue selected,
+- blocked/high-risk work touched,
+- out-of-scope files changed,
+- plan missing,
+- verification claims unsupported by output.
 
 ## Verification commands
 
