@@ -26,7 +26,7 @@ The point of this repository is not to demonstrate broad agent autonomy. It is t
 - [Draft PR creation spec](docs/DRAFT-PR-CREATION-SPEC.md)
 - [Runbook](docs/RUNBOOK.md)
 - [Report contracts](docs/REPORT-CONTRACTS.md)
-- [Getting started](docs/quickstart.md)
+- [Getting started](docs/getting-started.md)
 
 > Intentional fixture note: the getting-started link above is currently wrong. The smoke-test issue "Fix broken README link" should correct it to `docs/getting-started.md`.
 
