@@ -257,7 +257,7 @@ def _implement_packet(root: Path, packet: TaskPacket) -> None:
 
 
 def _verify(root: Path, packet: TaskPacket) -> tuple[str, bool, str]:
-    if "docs" in packet.allowed_actions[0].lower():
+    if any(word in packet.allowed_actions[0].lower() for word in ["docs", "documentation"]):
         command = "test -f docs/getting-started.md && grep -q 'docs/getting-started.md' README.md && python -m pytest"
     else:
         command = "python -m pytest"

@@ -4,6 +4,7 @@ from agent_looop.manager_dry_run import Issue
 from agent_looop.worker_prototype import (
     TaskPacket,
     _changed_files,
+    _verify,
     build_task_packet,
     select_oldest_eligible_issue,
     write_worker_plan,
@@ -94,3 +95,29 @@ def test_changed_files_reports_untracked_files_inside_directories(tmp_path: Path
     (tmp_path / "reports" / "worker-plans" / "issue-1-plan.md").write_text("plan\n")
 
     assert _changed_files(tmp_path) == ["tracked.txt", "reports/worker-plans/issue-1-plan.md"]
+
+
+def test_docs_verification_command_checks_target_file_and_readme_link(tmp_path: Path):
+    packet = TaskPacket(
+        task_id="issue-1",
+        issue_url="https://example.com/1",
+        goal="Fix broken README link",
+        source_evidence="Issue body",
+        agent_assessment="risk:low type:docs agent:ready",
+        allowed_actions=["Edit documentation files only"],
+        forbidden_actions=["No code changes"],
+        expected_output="README link fixed",
+        acceptance_criteria=["README.md links to docs/getting-started.md"],
+        verification_method="Inspect README diff and confirm docs/getting-started.md exists",
+        escalation_rules=["Stop if the target file does not exist"],
+    )
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs" / "getting-started.md").write_text("# Getting Started\n")
+    (tmp_path / "README.md").write_text("See docs/getting-started.md\n")
+    (tmp_path / "pyproject.toml").write_text("[tool.pytest.ini_options]\ntestpaths = ['tests']\n")
+    (tmp_path / "tests").mkdir()
+
+    command, _, _ = _verify(tmp_path, packet)
+
+    assert "test -f docs/getting-started.md" in command
+    assert "grep -q 'docs/getting-started.md' README.md" in command
