@@ -40,6 +40,16 @@ Hard fail if:
 
 Only after dry-run approval, apply labels and Agent Assessment comments exactly as proposed.
 
+Run:
+
+```bash
+python scripts/manager_apply.py \
+  --repo MichaelAtherton/agent-looop \
+  --output reports/manager-apply-$(date -u +%Y-%m-%d).md
+```
+
+This command mutates GitHub issue metadata/comments only. It does not write code, create branches, open PRs, close issues, merge, deploy, or change repo settings/secrets.
+
 Allowed actions:
 
 - create missing managed labels,
